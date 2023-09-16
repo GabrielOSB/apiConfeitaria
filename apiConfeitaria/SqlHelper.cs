@@ -11,7 +11,7 @@ namespace apiConfeitaria
         public static List<ProdutosAll> GetProductAll()
 
         {
-            var model = new List<ProdutosAll>();  
+            var model = new List<ProdutosAll>();
 
             using (var sqlCnn = new MySqlConnection(connectionString))
             {
@@ -36,6 +36,36 @@ namespace apiConfeitaria
             return model;
         }
 
+        public static ProdutosAll GetProductById(int Id)
+
+        {
+            var model = new ProdutosAll();
+
+            using (var sqlCnn = new MySqlConnection(connectionString))
+            {
+                sqlCnn.Open();
+
+                using (var sqlCmd = new MySqlCommand("select * from produto where id = @id", sqlCnn))
+                {
+
+                    sqlCmd.Parameters.AddWithValue("@id", Id);
+
+                    using (var sqlReader = sqlCmd.ExecuteReader())
+                        while (sqlReader.Read())
+                        {
+                            model.Descricao = sqlReader["descricao"].ToString();
+                            model.Preco = (decimal)sqlReader["preco"];
+                            model.Nome = sqlReader["nome"].ToString();
+
+
+                            break;
+                        }
+                }
+            }
+
+            return model;
+        }
+
         public static void InsertProduto(ProdutosAll Model)
 
         {
@@ -48,6 +78,42 @@ namespace apiConfeitaria
                     sqlCmd.Parameters.AddWithValue("@nome", Model.Nome);
                     sqlCmd.Parameters.AddWithValue("@descricao", Model.Descricao);
                     sqlCmd.Parameters.AddWithValue("@preco", Model.Preco);
+
+                    sqlCmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+        // fazer update
+
+        public static void UpdateProduto(ProdutosAll Model, int Id)
+
+        {
+            using (var sqlCnn = new MySqlConnection(connectionString))
+            {
+                sqlCnn.Open();
+
+                using (var sqlCmd = new MySqlCommand("UPDATE produto set nome = @nome, descricao = @descricao, preco = @preco  where ID = @id", sqlCnn))
+                {
+                    sqlCmd.Parameters.AddWithValue("@id", Id);
+                    sqlCmd.Parameters.AddWithValue("@nome", Model.Nome);
+                    sqlCmd.Parameters.AddWithValue("@descricao", Model.Descricao);
+                    sqlCmd.Parameters.AddWithValue("@preco", Model.Preco);
+
+                    sqlCmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+        public static void DeleteProduto(int Id)
+        {
+            using (var sqlCnn = new MySqlConnection(connectionString))
+            {
+                sqlCnn.Open();
+
+                using (var sqlCmd = new MySqlCommand("DELETE from produto where id = @id", sqlCnn))
+                {
+                    sqlCmd.Parameters.AddWithValue("@id", Id);
 
                     sqlCmd.ExecuteNonQuery();
                 }
